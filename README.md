@@ -24,6 +24,12 @@ La forma más fácil de arrancar la aplicación es usando la imagen "todo-en-uno
 3. Abre tu navegador y entra a: **http://localhost**
 4. **Crea tu cuenta**: Haz clic en "Register" para crear una cuenta nueva y empezar a utilizar el buscador.
 
+### 🛑 Cómo Detener y Borrar el Servicio
+Si necesitas forzar el borrado del contenedor (ej. para actualizar a una nueva versión limpiamente), abre la consola y pega:
+```bash
+docker rm -f cheakleaks
+```
+
 ## 🐳 Despliegue con Docker Compose
 Si prefieres gestionar el *Frontend* y *Backend* como contenedores separados (para modificar variables de entorno más fácilmente), puedes usar `docker-compose.yml`.
 

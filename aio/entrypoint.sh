@@ -14,7 +14,6 @@ echo "Detected Postgres Version: $PG_VER"
 
 # Fix Supervisor Config Paths (Replace '13' with detected version)
 sed -i "s|/usr/lib/postgresql/13/|/usr/lib/postgresql/$PG_VER/|g" /etc/supervisor/conf.d/supervisord.conf
-sed -i "s|/etc/postgresql/13/|/etc/postgresql/$PG_VER/|g" /etc/supervisor/conf.d/supervisord.conf
 
 if [ -z "$(ls -A /var/lib/postgresql/data)" ]; then
     echo "Initializing Database..."
