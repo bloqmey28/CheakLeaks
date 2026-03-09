@@ -94,7 +94,7 @@ app.post('/api/auth/register', async (req, res) => {
             return res.status(409).json({ message: 'Email already exists' });
         }
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Error interno: ' + (err.message || 'Desconocido') });
     }
 });
 
@@ -124,7 +124,7 @@ app.post('/api/auth/login', async (req, res) => {
         res.json({ message: 'Logged in', user: { id: user.id, email: user.email } });
     } catch (err) {
         console.error('Login Error:', err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Error interno: ' + (err.message || 'Desconocido') });
     }
 });
 
