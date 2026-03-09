@@ -19,7 +19,7 @@ export default function Auth() {
         const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
 
         try {
-            await axios.post(`http://localhost:4000${endpoint}`, { email, password }, { withCredentials: true });
+            await axios.post(`${endpoint}`, { email, password }, { withCredentials: true });
             if (isLogin) {
                 navigate('/dashboard');
             } else {

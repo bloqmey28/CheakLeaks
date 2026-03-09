@@ -65,7 +65,7 @@ export default function Dashboard() {
         setResults(null);
 
         try {
-            const res = await axios.post('http://localhost:4000/api/search', { query }, { withCredentials: true });
+            const res = await axios.post('/api/search', { query }, { withCredentials: true });
             setResults(res.data);
         } catch (err) {
             if (err.response?.status === 401 || err.response?.status === 403) {
@@ -79,7 +79,7 @@ export default function Dashboard() {
     };
 
     const handleLogout = async () => {
-        await axios.post('http://localhost:4000/api/auth/logout', {}, { withCredentials: true });
+        await axios.post('/api/auth/logout', {}, { withCredentials: true });
         navigate('/');
     };
 
