@@ -1,0 +1,80 @@
+
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - public-network
+    restart: always
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - DB_HOST=db
+      - DB_USER=leakcheck
+      - DB_PASSWORD=secure_password
+      - DB_NAME=leakcheck_db
+      - JWT_SECRET=super_secret_jwt_key
+      # CORS Origin for browser access
+      - CORS_ORIGIN=http://localhost:3000
+      # SMTP Configuration (Real Email)
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_SECURE=${SMTP_SECURE}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - public-network
+      - app-network
+    restart: always
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=leakcheck
+      - POSTGRES_PASSWORD=secure_password
+      - POSTGRES_DB=leakcheck_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U leakcheck"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: leakcheck-mailhog
+    ports:
+      - "1025:1025" # SMTP server
+      - "8025:8025" # Web UI
+    networks:
+      - app-network
+      - public-network
+
+networks:
+  app-network:
+    driver: bridge
+  public-network:
+    driver: bridge
+
+volumes:
+  pgdata:

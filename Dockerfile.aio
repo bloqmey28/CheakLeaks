@@ -1,0 +1,53 @@
+
+# Stage 1: Build Frontend
+FROM node:18-alpine as frontend-builder
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm install
+COPY frontend/ .
+RUN npm run build
+
+# Stage 2: Build Backend Dependencies
+FROM node:18-alpine as backend-builder
+WORKDIR /app/backend
+COPY backend/package*.json ./
+RUN npm install
+
+# Stage 3: Final Monolithic Image
+FROM node:18-slim
+
+# Install Nginx, Postgres, Supervisor
+RUN apt-get update && apt-get install -y \
+    nginx \
+    postgresql \
+    supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
+# Setup Directories
+WORKDIR /app
+RUN mkdir -p /var/log/supervisor /var/www/html /var/lib/postgresql/data && \
+    chown -R postgres:postgres /var/lib/postgresql/data
+
+# Copy Frontend Build
+COPY --from=frontend-builder /app/frontend/dist /var/www/html
+
+# Copy Backend Code
+COPY backend/ /app/backend/
+COPY --from=backend-builder /app/backend/node_modules /app/backend/node_modules
+
+# Copy Configs
+COPY aio/nginx.conf /etc/nginx/sites-available/default
+COPY aio/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY aio/entrypoint.sh /entrypoint.sh
+
+# Permissions
+RUN chmod +x /entrypoint.sh && \
+    chown -R postgres:postgres /var/lib/postgresql
+
+# Environment
+ENV PORT=4000
+ENV DB_HOST=127.0.0.1
+
+EXPOSE 80
+
+CMD ["/entrypoint.sh"]
